@@ -32,8 +32,8 @@
             function changeBpm(e) {
                 setState(prevState=>{
                     if (prevState.isOn) {
-                        stop();
-                        start();}
+                        stop(false);
+                        start(false);}
                     return ({
                         ...prevState,
                         bpm: e.target.value,
@@ -44,8 +44,8 @@
             function changeBeatLength(e) {
                 setState(prevState=>{
                     if (prevState.isOn) {
-                        stop();
-                        start();}
+                        stop(false);
+                        start(false);}
                     return ({
                         ...prevState,
                         beatLength: e.target.value,
@@ -57,23 +57,27 @@
                 navigator.vibrate(ms);
             }
 
-            function start() {
+            function start(isStateAffected=true) {
                 const bpmMilliseconds = 60000 / state.bpm;
                 interval.current = setInterval(() => {
                     vibrate(bpmMilliseconds * state.beatLength);
                     }, bpmMilliseconds);
-                setState({
-                    ...state,
-                    isOn: true,
-                });
+                if (isStateAffected) {
+                    setState({
+                        ...state,
+                        isOn: true,
+                    });
+                }
             }
 
-            function stop() {
+            function stop(isStateAffected=true) {
                 clearInterval(interval.current)
-                setState({
-                    ...state,
-                    isOn: false,
-                });
+                if (isStateAffected) {
+                    setState({
+                        ...state,
+                        isOn: false,
+                    });
+                }
             }
 
             return (
