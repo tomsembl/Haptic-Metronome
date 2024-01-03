@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Haptic Metronome</title>
+        <meta charset="utf-8">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+        <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+        <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+        <style>
+            body{ font-family: "Poppins"; }
+        </style>
+    </head>
+    <body>
+        <div id="app"></div>
+    </body>
+
+    <script type="text/babel">
+        function App() {
+            const [state, setState] = React.useState({
+                bpm: 100,
+                beatLength: 0.1,
+                isOn: false,
+            });
+            const interval = React.useRef()
+
+
+            function changeBpm(e) {
+                setState(prevState=>{
+                    if (prevState.isOn) {
+                        stop();
+                        start();}
+                    return ({
+                        ...prevState,
+                        bpm: e.target.value,
+                    })
+                });
+            }
+
+            function changeBeatLength(e) {
+                setState(prevState=>{
+                    if (prevState.isOn) {
+                        stop();
+                        start();}
+                    return ({
+                        ...prevState,
+                        beatLength: e.target.value,
+                    })
+                });
+            }
+
+            function vibrate(ms) {
+                navigator.vibrate(ms);
+            }
+
+            function start() {
+                const bpmMilliseconds = 60000 / state.bpm;
+                interval.current = setInterval(() => {
+                    vibrate(bpmMilliseconds * state.beatLength);
+                    }, bpmMilliseconds);
+                setState({
+                    ...state,
+                    isOn: true,
+                });
+            }
+
+            function stop() {
+                clearInterval(interval.current)
+                setState({
+                    ...state,
+                    isOn: false,
+                });
+            }
+
+            return (
+                <div class="m-6">
+                    <h1 class="title">Haptic Metronome</h1>
+                    <div class="m-3 is-flex is-flex-direction-row">
+                        <label class="has-text-weight-semibold" htmlFor="bpmSlider">BPM</label>
+                        <input class="mx-3" type="range" name="bpmSlider" id="bpmSlider" max="240" min="1" value={`${state.bpm}`} onChange={changeBpm}/>
+                        <p>{state.bpm}</p>
+                    </div>
+                    <div class="m-3 is-flex is-flex-direction-row">
+                        <label class="has-text-weight-semibold" htmlFor="beatSlider">Beat Length</label>
+                        <input class="mx-3" type="range" name="beatSlider" id="beatSlider" max="1" min="0.05" step="0.05" value={`${state.beatLength}`} onChange={changeBeatLength}/>
+                        <p>{state.beatLength}</p>
+                    </div>
+                    <div>
+                        <button class={`button is-primary m-3 is`} onClick={start} disabled={state.isOn}>Start</button>
+                        <button class={`button is-danger m-3`} onClick={stop} disabled={!state.isOn}>Stop</button>
+                    </div>
+                </div>
+            )            
+        }
+        ReactDOM.render(<App />, document.querySelector("#app"));
+    </script>
+</html>
